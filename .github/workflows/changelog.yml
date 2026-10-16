@@ -1,0 +1,44 @@
+name: Changelog
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  changelog:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout com todo o histórico
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Gerar CHANGELOG.md
+        run: |
+          {
+            echo "# Changelog"
+            echo
+            echo "Últimas alterações do repositório"
+            echo
+            git log -n 50 --no-merges --date=short \
+              --pretty=format:"- %ad | %s (%an) [%h]" \
+              -- . ':(exclude)CHANGELOG.md'
+            echo
+          } > CHANGELOG.md
+          cat CHANGELOG.md
+
+      - name: Commit do CHANGELOG
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add CHANGELOG.md
+          if git diff --cached --quiet; then
+            echo "Changelog já está atualizado."
+          else
+            git commit -m "docs: atualiza CHANGELOG [skip ci]"
+            git push
+          fi
