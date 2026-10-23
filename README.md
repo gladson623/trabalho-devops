@@ -15,13 +15,15 @@ Foram desenvolvidos workflows para demonstrar a execução de automações a par
 
 O GitHub Actions foi utilizado para automatizar tarefas por meio de arquivos de configuração YAML armazenados no diretório `.github/workflows/`.
 
-O projeto possui três workflows:
+O projeto possui três Actions:
 
-- `hello.yml`: demonstra o funcionamento básico do GitHub Actions.
-- `changelog.yml`: gera e atualiza automaticamente o arquivo `CHANGELOG.md`.
-- `release.yml`: cria um pacote ZIP e o anexa à release publicada no GitHub.
+| Nome da Action | Arquivo | Quando roda | O que faz |
+|---|---|---|---|
+| **CI** | `hello.yml` | Push e pull request na `main`, ou manualmente | Workflow de exemplo: baixa o código e imprime "Hello, world!" no terminal |
+| **Changelog** | `changelog.yml` | Push na `main`, ou manualmente | Lê o histórico de commits e gera/atualiza o `CHANGELOG.md` automaticamente |
+| **Release Package** | `release.yml` | Quando uma release é publicada | Zipa o conteúdo do repositório e anexa o `.zip` na release para download |
 
-### 2.1. Workflow CI — `hello.yml`
+### 2.1. Action "CI" — `hello.yml`
 
 Foi criado um workflow introdutório para demonstrar a execução de comandos automatizados.
 
@@ -30,9 +32,9 @@ Foi criado um workflow introdutório para demonstrar a execução de comandos au
 - Eventos de `pull_request` direcionados à branch `main`.
 - `workflow_dispatch`, que permite a execução manual.
 
-O workflow utiliza uma máquina virtual Ubuntu, obtém o código do repositório e executa comandos de exemplo no terminal.
+O workflow utiliza uma máquina virtual Ubuntu, obtém o código do repositório e executa comandos de exemplo no terminal, como a exibição da mensagem "Hello, world!".
 
-## 3. Changelog — `changelog.yml`
+## 3. Action "Changelog" — `changelog.yml`
 
 Foi implementada uma automação para gerar o arquivo `CHANGELOG.md` a partir do histórico de commits do Git.
 
@@ -61,7 +63,7 @@ Para permitir a atualização automática do arquivo, foi configurada a permiss�
 
 Dessa forma, o histórico de alterações é gerado automaticamente, reduzindo a necessidade de atualização manual da documentação.
 
-## 4. Release — `release.yml`
+## 4. Action "Release Package" — `release.yml`
 
 Foi implementada uma automação para criar e anexar um pacote ZIP à release publicada no GitHub.
 
