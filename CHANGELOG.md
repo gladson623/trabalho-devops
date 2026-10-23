@@ -2,6 +2,7 @@
 
 Últimas alterações do repositório
 
+- 2026-10-22 | docs: adiciona nome e resumo de cada action no README (Gladson Coronado) [250a1e7]
 - 2026-10-22 | docs: atualiza README com detalhes de changelog e release (gustav0francisco) [fef2ce6]
 - 2026-10-22 | docs: Implementando RA no Readme (gustav0francisco) [999102e]
 - 2026-10-15 | adicionando informacoes readme (Gladson Coronado) [680fc59]
