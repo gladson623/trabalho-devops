@@ -2,140 +2,98 @@
 
 ## Integrantes
 
-- **Gladson Coronado dos Santos** — RA: 250293
-- **Gustavo Francisco dos Santos** — RA: 250296
+- Gladson Coronado dos Santos — RA 250293
+- Gustavo Francisco dos Santos — RA 250296
 
-## 1. Objetivo do trabalho
+## Sobre o projeto
 
-Este trabalho tem como objetivo praticar a automação de tarefas de desenvolvimento de software utilizando **GitHub Actions**, com foco na geração automática de changelog e na criação e publicação de releases.
+O objetivo deste projeto é demonstrar o uso do GitHub Actions para automatizar tarefas relacionadas ao versionamento e à organização de um projeto.
 
-Foram desenvolvidos workflows para demonstrar a execução de automações a partir de eventos do GitHub, a atualização do histórico de alterações e a geração de pacotes para distribuição do projeto.
+Foram criadas duas automações principais: uma responsável por gerar o histórico de alterações do projeto (Changelog) e outra responsável por preparar e anexar um pacote ZIP quando uma nova versão é publicada (Release).
 
-## 2. GitHub Actions
+Também foi criado um workflow simples de CI como complemento, para demonstrar a execução de comandos pelo GitHub Actions.
 
-O GitHub Actions foi utilizado para automatizar tarefas por meio de arquivos de configuração YAML armazenados no diretório `.github/workflows/`.
+## 1. Changelog — `changelog.yml`
 
-O projeto possui três Actions:
+O Changelog foi desenvolvido para registrar automaticamente as alterações realizadas no projeto, utilizando as mensagens dos commits enviados ao repositório.
 
-| Nome da Action | Arquivo | Quando roda | O que faz |
-|---|---|---|---|
-| **CI** | `hello.yml` | Push e pull request na `main`, ou manualmente | Workflow de exemplo: baixa o código e imprime "Hello, world!" no terminal |
-| **Changelog** | `changelog.yml` | Push na `main`, ou manualmente | Lê o histórico de commits e gera/atualiza o `CHANGELOG.md` automaticamente |
-| **Release Package** | `release.yml` | Quando uma release é publicada | Zipa o conteúdo do repositório e anexa o `.zip` na release para download |
+### Busca do histórico de commits
 
-### 2.1. Action "CI" — `hello.yml`
-
-Foi criado um workflow introdutório para demonstrar a execução de comandos automatizados.
-
-**Gatilhos configurados:**
-- `push` para a branch `main`.
-- Eventos de `pull_request` direcionados à branch `main`.
-- `workflow_dispatch`, que permite a execução manual.
-
-O workflow utiliza uma máquina virtual Ubuntu, obtém o código do repositório e executa comandos de exemplo no terminal, como a exibição da mensagem "Hello, world!".
-
-## 3. Action "Changelog" — `changelog.yml`
-
-Foi implementada uma automação para gerar o arquivo `CHANGELOG.md` a partir do histórico de commits do Git.
-
-### O que foi desenvolvido
-
-1. Configuração do workflow para execução após um `push` na branch `main` ou por acionamento manual.
-2. Obtenção do histórico completo do repositório utilizando `actions/checkout`.
-3. Leitura dos commits recentes por meio do comando `git log`.
-4. Formatação automática das informações de cada commit.
-5. Geração e atualização do arquivo `CHANGELOG.md`.
-6. Verificação de alterações para evitar commits desnecessários.
-7. Criação de um commit automático e envio da atualização ao repositório remoto quando o changelog é modificado.
-
-### Informações registradas
-
-Cada entrada do changelog contém:
-
-- Data do commit.
-- Mensagem do commit.
-- Nome do autor.
-- Identificador curto do commit.
-
-O workflow ignora commits de merge e limita a listagem aos 50 commits mais recentes.
-
-Para permitir a atualização automática do arquivo, foi configurada a permissão `contents: write`.
-
-Dessa forma, o histórico de alterações é gerado automaticamente, reduzindo a necessidade de atualização manual da documentação.
-
-## 4. Action "Release Package" — `release.yml`
-
-Foi implementada uma automação para criar e anexar um pacote ZIP à release publicada no GitHub.
-
-### O que foi desenvolvido
-
-1. Configuração do workflow para ser acionado pelo evento `release.published`.
-2. Obtenção dos arquivos do repositório.
-3. Geração de um arquivo ZIP com o nome baseado na tag da versão.
-4. Exclusão dos diretórios `.git` e `.github` do pacote.
-5. Upload do arquivo ZIP para a release correspondente, utilizando o GitHub CLI.
-6. Configuração do token `GITHUB_TOKEN` e da permissão `contents: write` para permitir o envio do pacote.
-
-### Exemplo de funcionamento
-
-Quando uma release com a tag `v1.1.0` é publicada, o workflow gera o seguinte arquivo:
-
-`trabalho-devops-v1.1.0.zip`
-
-O arquivo é anexado à release, ficando disponível para download na página de versões do repositório.
-
-A automação facilita a distribuição do projeto e evita que o pacote precise ser criado e anexado manualmente.
-
-## 5. Versionamento e releases publicadas
-
-O projeto possui as seguintes versões publicadas:
-
-- **v1.0.0:** primeira versão do projeto, com a aplicação CRUD, Docker e as automações iniciais.
-- **v1.1.0:** versão com melhorias na documentação de execução e do GitHub Actions.
-
-As releases permitem identificar versões específicas do projeto e disponibilizar os arquivos correspondentes para download.
-
-O versionamento utiliza o formato `MAJOR.MINOR.PATCH`, no qual:
-
-- `MAJOR`: mudanças incompatíveis.
-- `MINOR`: novas funcionalidades compatíveis.
-- `PATCH`: correções compatíveis.
-
-## 6. Tecnologias utilizadas
-
-- Git e GitHub.
-- GitHub Actions.
-- YAML.
-- GitHub CLI.
-- Markdown.
-- Docker e Docker Compose, como complemento para execução da aplicação.
-
-## 7. Extra: aplicação com Docker
-
-Além do foco principal em GitHub Actions, Changelog e Release, o projeto inclui uma aplicação web CRUD executada com Docker Compose, aproveitando os conhecimentos desenvolvidos no primeiro bimestre.
-
-O ambiente utiliza PHP, MySQL e phpMyAdmin.
-
-Para iniciar os serviços, execute na raiz do projeto:
-
-```bash
-docker compose up -d --build
+```yaml
+with:
+  fetch-depth: 0
 ```
 
-A aplicação fica disponível em `http://localhost:8080` e o phpMyAdmin em `http://localhost:8081`.
+Esse trecho permite que o workflow tenha acesso ao histórico completo de commits do repositório. Dessa forma, ele consegue consultar as alterações anteriores para montar o arquivo de changelog.
 
-## 8. Resultados obtidos
+### Geração do arquivo CHANGELOG.md
 
-Com a implementação dos workflows, foi possível demonstrar:
+```bash
+git log -n 50 --no-merges --date=short \
+  --pretty=format:"- %ad | %s (%an) [%h]" \
+  -- . ':(exclude)CHANGELOG.md'
+```
 
-- A execução automatizada de tarefas pelo GitHub Actions.
-- A geração do changelog a partir do histórico de commits.
-- A atualização automática do arquivo `CHANGELOG.md`.
-- A criação de pacotes ZIP associados às releases publicadas.
-- A disponibilização de versões do projeto para download pelo GitHub.
+Aqui definimos como as alterações serão buscadas e organizadas. O comando consulta os últimos 50 commits, desconsidera os commits de merge e apresenta a data, a mensagem, o autor e o identificador de cada alteração.
 
-O trabalho demonstra conceitos introdutórios de automação de processos, documentação de alterações e distribuição de versões de software.
+Também deixamos o próprio `CHANGELOG.md` fora da consulta para evitar que as atualizações desse arquivo apareçam no histórico que ele mesmo gera.
 
----
+### Atualização automática do arquivo
 
-**Trabalho acadêmico — DevOps**
+```bash
+git add CHANGELOG.md
+if git diff --cached --quiet; then
+  echo "Changelog já está atualizado."
+else
+  git commit -m "docs: atualiza CHANGELOG [skip ci]"
+  git push
+fi
+```
+
+Depois de gerar o changelog, esse trecho verifica se houve alguma mudança no arquivo. Caso tenha ocorrido, cria um commit e envia a atualização para o GitHub. Se o conteúdo já estiver atualizado, nenhuma nova alteração é enviada.
+
+A identificação `[skip ci]` também ajuda a evitar novas execuções de workflows compatíveis com essa configuração por causa do commit automático do changelog.
+
+## 2. Release — `release.yml`
+
+A automação de Release foi criada para gerar um pacote compactado do projeto e anexá-lo automaticamente à versão publicada na seção Releases do GitHub.
+
+### Geração do pacote ZIP
+
+```bash
+zip -r "trabalho-devops-${{ github.event.release.tag_name }}.zip" . -x ".git/*" ".github/*"
+ls -lh *.zip
+```
+
+Esse trecho reúne os arquivos do projeto em um arquivo ZIP. O nome do pacote utiliza a tag da versão publicada no GitHub. Por exemplo, ao publicar a versão `v1.1.0`, o arquivo gerado será `trabalho-devops-v1.1.0.zip`.
+
+As pastas `.git` e `.github` são ignoradas porque não são necessárias para o pacote final. O comando `ls -lh` permite conferir o arquivo gerado e seu tamanho.
+
+### Envio do pacote para a Release
+
+```yaml
+env:
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+```
+
+```bash
+gh release upload "${{ github.event.release.tag_name }}" trabalho-devops-*.zip --clobber
+```
+
+Depois que o pacote é gerado, esse trecho utiliza o GitHub CLI para anexar o arquivo ZIP à Release correspondente. O token disponibilizado pelo próprio GitHub permite que a automação realize essa operação no repositório.
+
+Com isso, o pacote fica disponível como anexo da versão publicada, sem precisar realizar o envio manualmente.
+
+## 3. Tecnologias utilizadas
+
+- Git e GitHub para versionamento e hospedagem do projeto.
+- GitHub Actions para executar as automações.
+- YAML para configurar os workflows.
+- GitHub CLI para anexar o pacote à Release.
+- Docker e Docker Compose como complemento do projeto.
+
+## 4. Resultados
+
+Com as automações, conseguimos gerar o histórico de alterações do projeto e preparar pacotes automaticamente para as versões publicadas.
+
+As execuções podem ser acompanhadas pela aba Actions do GitHub, enquanto os arquivos gerados e as versões publicadas ficam disponíveis no próprio repositório.
